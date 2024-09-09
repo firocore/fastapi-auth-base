@@ -10,32 +10,44 @@ from app.users.router import router as users_router
 
 
 
-
+# Жизненный цикл приложения (старт и завершение)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("Application startup!")
-    yield
-    logger.info("Application shutdown!")
+    """
+    Контекстный менеджер, который управляет жизненным циклом приложения.
+
+    Args:
+        app (FastAPI): Приложение FastAPI.
+
+    Yields:
+        None: Выполняется при запуске и завершении приложения.
+    """
+    logger.info("Application startup!")  # Логирование при запуске приложения
+    yield  # Приложение работает здесь
+    logger.info("Application shutdown!")  # Логирование при завершении приложения
 
 
+# Создание экземпляра приложения FastAPI с кастомными параметрами
 app = FastAPI(
-    title="FastAPI Auth Base",
-    summary="summary",
-    description="description",
-    root_path="/v1",
-    redoc_url=None,
-    lifespan=lifespan
+    title="FastAPI Auth Base",  # Название приложения
+    summary="summary",  # Краткое описание
+    description="description",  # Полное описание приложения
+    root_path="/v1",  # Корневой путь для всех маршрутов API
+    redoc_url=None,  # Отключение документации ReDoc
+    lifespan=lifespan  # Указание контекстного менеджера для управления жизненным циклом
 )
 
 
+# Настройка CORS (Cross-Origin Resource Sharing)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.security.BACKEND_CORS_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "DELETE", "PUT"],
-    allow_headers=["*"],
+    allow_origins=settings.security.BACKEND_CORS_ORIGINS,  # Разрешенные источники
+    allow_credentials=True,  # Разрешение отправки cookies и заголовков
+    allow_methods=["GET", "POST", "DELETE", "PUT"],  # Разрешенные HTTP методы
+    allow_headers=["*"],  # Разрешенные заголовки
 )
 
 
-app.include_router(auth_router)
-app.include_router(users_router)
+# Подключение роутеров для маршрутов авторизации и пользователей
+app.include_router(auth_router)  # Роутер для авторизации
+app.include_router(users_router)  # Роутер для работы с пользователями
