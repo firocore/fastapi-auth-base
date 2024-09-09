@@ -25,3 +25,9 @@ async def get_user_by_username(username: str, session: AsyncSession):
     statement = select(users_models.Users).where(users_models.Users.username == username)
     result = await session.execute(statement)
     return result.scalars().first()
+
+
+async def get_user_by_id(user_id: int, session: AsyncSession):
+    statement = select(users_models.Users).where(users_models.Users.id == user_id)
+    result = await session.execute(statement)
+    return result.scalars().first()

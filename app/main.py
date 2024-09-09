@@ -6,6 +6,8 @@ from loguru import logger
 
 from app.core import settings
 from app.auth.router import router as auth_router
+from app.users.router import router as users_router
+
 
 
 
@@ -36,5 +38,4 @@ app.add_middleware(
 
 
 app.include_router(auth_router)
-
-print(settings.database_url.render_as_string(False))
+app.include_router(users_router)

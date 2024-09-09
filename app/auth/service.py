@@ -31,6 +31,7 @@ async def authorization(form_data: auth_schemas.UserAuth, response: Response, se
 
         return auth_schemas.Token(access_token=access_token, refresh_token=refresh_token)
 
+
 async def registration(form_data: users_schemas.UserCreate, response: Response, session: AsyncSession) -> auth_schemas.Token: 
     async with session.begin():
         new_user = await users_service.create_user(form_data, session)
@@ -73,6 +74,25 @@ def create_refresh_token(user_id: int):
         settings.security.SECRET_KEY, 
         algorithm=settings.security.ALGORITHM
     )
+
+def decode_jwt_token(token: str):
+    try:
+        data = jwt.decode(token, settings.security.SECRET_KEY, algorithms=settings.security.ALGORITHM)
+        user_id = int(data.get("sub", None))
+
+        if user_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Could not validate credentials"
+            )
+        
+        return data
+
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials"
+        )
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)

@@ -1,12 +1,13 @@
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, status, Form, Depends, Response
+from fastapi import APIRouter, HTTPException, status, Form, Depends, Response, Request
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import get_db_session
 from app.auth import schemas as auth_schemas
 from app.auth import service as auth_service
+from app.auth import dependencies as auth_depends
 from app.users import schemas as users_schemas
 
 
@@ -32,3 +33,8 @@ async def registration(
     session: Annotated[AsyncSession, Depends(get_db_session)]
     ):
     return await auth_service.registration(form_data, response, session)
+
+
+@router.post('/refresh', status_code=status.HTTP_200_OK, response_model=auth_schemas.Token)
+async def refresh(tokens: Annotated[auth_schemas.Token, Depends(auth_depends.refresh_access_token)]):
+    return tokens
